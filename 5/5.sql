@@ -1,0 +1,126 @@
+use BVA_UNIVER
+
+--1--
+SELECT AUDITORIUM.AUDITORIUM, AUDITORIUM_TYPE.AUDITORIUM_TYPENAME 
+		From AUDITORIUM_TYPE Inner Join AUDITORIUM
+		on AUDITORIUM.[AUDITORIUM_TYPE]=AUDITORIUM_TYPE.AUDITORIUM_TYPE;
+
+--2--
+SELECT AUDITORIUM.AUDITORIUM, AUDITORIUM_TYPE.AUDITORIUM_TYPENAME 
+		From AUDITORIUM_TYPE Inner Join AUDITORIUM
+		on AUDITORIUM.[AUDITORIUM_TYPE]=AUDITORIUM_TYPE.AUDITORIUM_TYPE
+		and AUDITORIUM_TYPE.AUDITORIUM_TYPENAME LIKE '%компьютер%';
+
+--3--  без inner join
+SELECT AUDITORIUM.AUDITORIUM, AUDITORIUM_TYPE.AUDITORIUM_TYPENAME 
+		From AUDITORIUM_TYPE, AUDITORIUM
+		where AUDITORIUM.[AUDITORIUM_TYPE]=AUDITORIUM_TYPE.AUDITORIUM_TYPE;
+
+SELECT AUDITORIUM.AUDITORIUM, AUDITORIUM_TYPE.AUDITORIUM_TYPENAME 
+		From AUDITORIUM_TYPE, AUDITORIUM
+		where AUDITORIUM.[AUDITORIUM_TYPE]=AUDITORIUM_TYPE.AUDITORIUM_TYPE
+		and AUDITORIUM_TYPE.AUDITORIUM_TYPENAME LIKE '%компьютер%';
+
+--4--
+SELECT  FACULTY.FACULTY_NAME as [Факультет], --as для именования
+		PULPIT.PULPIT_NAME as [Кафедра],
+		GROUPS.PROFESSION as [Специальность],
+		SUBJECT.SUBJECT_NAME as [Дисциплина],
+		STUDENT.NAME as [ФИО],
+   Case 
+   when ( PROGRESS.NOTE=6) then 'Шесть'
+   when ( PROGRESS.NOTE=7) then 'Семь'
+   when ( PROGRESS.NOTE=8) then 'Восемь'
+    end     [оценка]  
+FROM    FACULTY, GROUPS, PULPIT, SUBJECT, STUDENT, PROGRESS
+where FACULTY.FACULTY = GROUPS.FACULTY and
+		STUDENT.IDGROUP=GROUPS.IDGROUP and
+		SUBJECT.PULPIT=PULPIT.PULPIT and
+		SUBJECT.SUBJECT = PROGRESS.SUBJECT and
+		PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT and
+		PROGRESS.NOTE between 6 and 8
+		order by 
+		FACULTY.FACULTY asc, 
+		PULPIT.PULPIT asc, 
+		SUBJECT.SUBJECT_NAME asc, 
+		PROGRESS.NOTE desc
+		
+
+--5--
+SELECT  FACULTY.FACULTY_NAME as [Факультет], 
+		PULPIT.PULPIT_NAME as [Кафедра],
+		GROUPS.PROFESSION as [Специальность],
+		SUBJECT.SUBJECT_NAME as [Дисциплина],
+		STUDENT.NAME as [ФИО],
+   Case 
+   when ( PROGRESS.NOTE=6) then 'Шесть'
+   when ( PROGRESS.NOTE=7) then 'Семь'
+   when ( PROGRESS.NOTE=8) then 'Восемь'
+    end     [оценка]  
+FROM  FACULTY, GROUPS, PULPIT, SUBJECT, STUDENT, PROGRESS
+where FACULTY.FACULTY = GROUPS.FACULTY and
+		STUDENT.IDGROUP=GROUPS.IDGROUP and
+		SUBJECT.PULPIT=PULPIT.PULPIT and
+		SUBJECT.SUBJECT = PROGRESS.SUBJECT and
+		PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT and
+		PROGRESS.NOTE between 6 and 8
+		order by (Case when (PROGRESS.NOTE = 7) then 1
+					   when (PROGRESS.NOTE = 8) then 2
+					   when (PROGRESS.NOTE = 6) then 3    
+					   end   )
+
+
+--6--
+SELECT PULPIT.PULPIT_NAME[Кафедра], isnull(TEACHER.TEACHER_NAME, '***')[Преподаватель]
+FROM  PULPIT Left JOIN  TEACHER 
+ON TEACHER.PULPIT = PULPIT.PULPIT 
+
+--7-- меняем местами таблицы в left outer join
+SELECT PULPIT.PULPIT_NAME[Кафедра], isnull(TEACHER.TEACHER_NAME, '***')[Преподаватель]
+FROM  TEACHER Left Outer JOIN  PULPIT 
+ON TEACHER.PULPIT = PULPIT.PULPIT 
+
+-- и обратно
+SELECT PULPIT.PULPIT_NAME[Кафедра], isnull(TEACHER.TEACHER_NAME, '***')[Преподаватель]
+FROM  PULPIT Right JOIN  TEACHER 
+ON TEACHER.PULPIT = PULPIT.PULPIT 
+--8--
+use BVA_UNIVER
+SELECT * 
+FROM PULPIT FULL JOIN  TEACHER
+ON PULPIT.PULPIT=TEACHER.PULPIT;
+
+SELECT COUNT(*)
+FROM PULPIT FULL JOIN  TEACHER
+ON PULPIT.PULPIT=TEACHER.PULPIT
+WHERE GENDER IS NULL;
+
+SELECT PULPIT.PULPIT
+FROM PULPIT ;
+
+
+--9-- cross join
+USE BVA_UNIVER
+SELECT AUDITORIUM.AUDITORIUM, AUDITORIUM_TYPE.AUDITORIUM_TYPENAME
+  From AUDITORIUM Cross Join AUDITORIUM_TYPE 
+  Where AUDITORIUM.AUDITORIUM_TYPE=AUDITORIUM_TYPE.AUDITORIUM_TYPE
+
+
+--10.1-- full outer join 
+use [Фирма по продаже автозапчастей]
+SELECT * from ПОСТАВЩИКИ FULL OUTER JOIN ПОСТАВКИ 
+on ПОСТАВЩИКИ.[Код поставщика] = ПОСТАВКИ.[Код поставки]
+
+-- коммутативность
+SELECT * from ПОСТАВКИ FULL OUTER JOIN ДЕТАЛИ 
+on ПОСТАВКИ.[Код детали] = ДЕТАЛИ.[Код детали]
+Order by Поставки.[Код детали]
+-- соединение left и right outer join'ов
+SELECT * from ПОСТАВКИ LEFT OUTER JOIN ДЕТАЛИ 
+on ПОСТАВКИ.[Код детали] = ДЕТАЛИ.[Код детали]
+
+SELECT * from ДЕТАЛИ LEFT OUTER JOIN ПОСТАВКИ 
+on ПОСТАВКИ.[Код детали] = ДЕТАЛИ.[Код детали]
+-- включает inner join этих таблиц
+SELECT * from ПОСТАВЩИКИ INNER JOIN ПОСТАВКИ 
+on ПОСТАВЩИКИ.[Код поставщика] = ПОСТАВКИ.[Код поставщика]/*

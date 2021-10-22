@@ -1,0 +1,164 @@
+use BVA_UNIVER
+SELECT min(AUDITORIUM_CAPACITY)[Минимальная вместимость],
+	   max(AUDITORIUM_CAPACITY)[Максимальная вместимость],
+	   count (*)[Количество Аудиторий],
+	   avg(AUDITORIUM_CAPACITY)[Средняя вместимость],
+	   sum(AUDITORIUM_CAPACITY)[Суммарная вместимость]
+from AUDITORIUM
+
+
+
+
+
+
+
+SELECT AUDITORIUM_TYPENAME,
+		min(AUDITORIUM_CAPACITY)[Минимальная вместимость],
+	   max(AUDITORIUM_CAPACITY)[Максимальная вместимость],
+	   count (*)[Количество Аудиторий],
+	   avg(AUDITORIUM_CAPACITY)[Средняя вместимость],
+	   sum(AUDITORIUM_CAPACITY)[Суммарная вместимость]
+FROM AUDITORIUM, AUDITORIUM_TYPE
+	where AUDITORIUM.AUDITORIUM_TYPE=AUDITORIUM_TYPE.AUDITORIUM_TYPE
+	group by AUDITORIUM_TYPENAME
+
+
+
+
+
+SELECT *
+FROM (select Case when NOTE between 5 and 10 then 'Оценка от 5 до 10'
+	else 'Оценка меньше 5'
+	end [положительные оценки], Count(*)[Количество]
+FROM PROGRESS Group by case
+	when NOTE between 5 and 10 then 'Оценка от 5 до 10'
+	else 'Оценка меньше 5'
+	end) as T
+		ORDER BY Case [положительные оценки]
+		when 'Оценка от 5 до 10' then 2
+		when 'Оценка меньше 5' then 1
+		else 0
+		end
+
+
+
+
+
+SELECT f.FACULTY,
+	   g.PROFESSION,
+	   round(avg(cast(p.NOTE as float(5))),2)[Средняя оценка]
+FROM FACULTY f inner join GROUPS g
+	on f.FACULTY=g.FACULTY
+	inner join STUDENT s
+	on g.IDGROUP=s.IDGROUP
+	inner join PROGRESS p
+	on s.IDSTUDENT=p.IDSTUDENT
+GROUP BY f.FACULTY,
+		 g.PROFESSION,
+		 p.NOTE,
+		 s.IDSTUDENT
+		 order by [средняя оценка] desc
+
+
+
+
+		 select FACULTY.FACULTY_NAME, GROUPS.PROFESSION,
+round(avg(cast(PROGRESS.NOTE as float(4))),2) [средняя оценка]
+from FACULTY inner join GROUPS
+on FACULTY.FACULTY = GROUPS.FACULTY
+inner join STUDENT
+on STUDENT.IDGROUP = GROUPS.IDGROUP
+inner join PROGRESS
+on PROGRESS.IDSTUDENT = STUDENT.IDSTUDENT
+group by FACULTY.FACULTY_NAME,
+GROUPS.PROFESSION
+
+order by [средняя оценка] desc
+
+
+
+
+SELECT GROUPS.PROFESSION, PROGRESS.SUBJECT,avg(PROGRESS.NOTE) [Средняя оценка]
+FROM FACULTY inner join GROUPS
+on FACULTY.FACULTY=GROUPS.FACULTY
+inner join STUDENT
+on GROUPS.IDGROUP=STUDENT.IDGROUP
+inner join PROGRESS
+on STUDENT.IDSTUDENT=PROGRESS.IDSTUDENT
+WHERE FACULTY.FACULTY='ТОВ'
+GROUP BY rollup (FACULTY.FACULTY, PROFESSION, SUBJECT) 
+
+
+
+
+SELECT GROUPS.PROFESSION, PROGRESS.SUBJECT,avg(PROGRESS.NOTE) [Средняя оценка]
+FROM FACULTY inner join GROUPS
+on FACULTY.FACULTY=GROUPS.FACULTY
+inner join STUDENT
+on GROUPS.IDGROUP=STUDENT.IDGROUP
+inner join PROGRESS
+on STUDENT.IDSTUDENT=PROGRESS.IDSTUDENT
+WHERE FACULTY.FACULTY='ТОВ'
+GROUP BY cube (FACULTY.FACULTY, PROFESSION, SUBJECT)
+
+
+
+
+SELECT GROUPS.PROFESSION, PROGRESS.SUBJECT, avg(PROGRESS.NOTE) [Средняя оценка]
+From GROUPS
+inner join STUDENT
+on GROUPS.IDGROUP=STUDENT.IDGROUP
+inner join PROGRESS
+on STUDENT.IDSTUDENT=PROGRESS.IDSTUDENT
+where GROUPS.FACULTY='ТОВ'
+GROUP BY PROFESSION, SUBJECT
+	UNION
+SELECT GROUPS.PROFESSION, PROGRESS.SUBJECT, avg(PROGRESS.NOTE) [Средняя оценка]
+From GROUPS
+inner join STUDENT
+on GROUPS.IDGROUP=STUDENT.IDGROUP
+inner join PROGRESS
+on STUDENT.IDSTUDENT=PROGRESS.IDSTUDENT
+where GROUPS.FACULTY='ХТиТ'
+GROUP BY PROFESSION, SUBJECT
+	
+
+
+
+
+	SELECT GROUPS.PROFESSION, PROGRESS.SUBJECT, avg(PROGRESS.NOTE) [Средняя оценка]
+From GROUPS
+inner join STUDENT
+on GROUPS.IDGROUP=STUDENT.IDGROUP
+inner join PROGRESS
+on STUDENT.IDSTUDENT=PROGRESS.IDSTUDENT
+where GROUPS.FACULTY='ТОВ'
+GROUP BY PROFESSION, SUBJECT
+	except
+SELECT GROUPS.PROFESSION, PROGRESS.SUBJECT, avg(PROGRESS.NOTE) [Средняя оценка]
+From GROUPS
+inner join STUDENT
+on GROUPS.IDGROUP=STUDENT.IDGROUP
+inner join PROGRESS
+on STUDENT.IDSTUDENT=PROGRESS.IDSTUDENT
+where GROUPS.FACULTY='ХТиТ'
+GROUP BY PROFESSION, SUBJECT
+
+
+
+
+SELECT S1.SUBJECT, S1.NOTE,
+	(select count(*) from PROGRESS S2
+	where S1.SUBJECT= S2.SUBJECT
+	and S1.NOTE= S2.NOTE) [Количество]
+FROM PROGRESS S1
+	GROUP BY S1.SUBJECT, S1.NOTE
+	HAVING NOTE=9 or NOTE=8
+	ORDER BY [Количество] desc
+
+
+
+
+
+
+
